@@ -50,6 +50,11 @@ def process_signal(payload, db):
         if state.current_status != "NONE":
             # Just Close
             old_status = state.current_status
+            
+            # CAPTURE ENTRY DETAILS BEFORE RESETTING
+            entry_time_str = state.last_action_time.strftime('%Y-%m-%d %H:%M:%S') if state.last_action_time else "N/A"
+            entry_price = state.last_signal_price if state.last_signal_price else "N/A"
+            
             state.current_status = "NONE"
             state.last_action_time = datetime.utcnow()
             # RECORD THE CANDLE TIME OF CLOSE
@@ -58,8 +63,8 @@ def process_signal(payload, db):
             
             db.commit()
             
-            # Send Notification
-            msg = f"🔴 <b>TRADE CLOSED</b>\nSymbol: {symbol}\nAction: Closed {old_status}\nPrice: {price}\nCandle Time: {candle_timestamp}"
+            # Send Notification with Entry Details
+            msg = f"🔴 <b>TRADE CLOSED</b>\nSymbol: {symbol}\nAction: Closed {old_status}\nPrice: {price}\nCandle Time: {candle_timestamp}\n\n🔍 <b>Entry Details:</b>\nEntry Time: {entry_time_str}\nEntry Price: {entry_price}"
             send_telegram_message(msg)
             return {"status": "success", "message": "Trade Closed"}
         else:
