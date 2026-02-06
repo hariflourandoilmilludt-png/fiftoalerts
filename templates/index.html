@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TradingView Alert Manager</title>
+    <meta http-equiv="refresh" content="5"> <!-- Auto-Refresh every 5 seconds -->
     <style>
         :root {
             --bg-color: #0f172a;
@@ -235,7 +236,7 @@
             // Get current domain (handles local or railway automatically)
             const baseUrl = window.location.origin;
             // Construct the URL: /webhook/SYMBOL/ACTION
-            const url = `${baseUrl}/webhook/${symbol}/${action}?price={% raw %}{{close}}{% endraw %}&timestamp={% raw %}{{timenow}}{% endraw %}`;
+            const url = `${baseUrl}/webhook/${symbol}/${action}?price={% raw %}{{close}}{% endraw %}&timestamp={% raw %}{{time}}{% endraw %}`;
 
             navigator.clipboard.writeText(url).then(() => {
                 alert(`Copied ${action.toUpperCase()} URL for ${symbol}!`);
