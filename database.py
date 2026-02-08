@@ -8,7 +8,9 @@ import os
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///tradingview_alerts.db")
 
 Base = declarative_base()
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(DATABASE_URL)
+if DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 class Instrument(Base):
