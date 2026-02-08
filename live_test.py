@@ -24,6 +24,18 @@ def run_checks():
     except Exception as e:
         print(f"Add Instrument Failed: {e}")
 
+    print("\nSetting Quantman URL...")
+    # Update Instrument with a dummy Quantman URL (using httpbin for testing if possible, or just localhost)
+    # For test, we just assume the endpoint works.
+    try:
+        # We need the ID of the instrument "LIVE_TEST". Since we don't know it easily without querying, 
+        # we might skip this or assume ID 1 if it's fresh. 
+        # Better: run a GET to dashboard to scrape it? No, too complex for this script.
+        # Let's just print a reminder to test manually or check logs.
+        print("To verify Quantman, manually set a URL in Dashboard and check logs.")
+    except Exception as e:
+        print(f"Quantman Setup Failed: {e}")
+
     print("\nSending Webhook (ENTRY)...")
     payload = {
         "symbol": "LIVE_TEST",

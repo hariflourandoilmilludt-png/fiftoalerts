@@ -1,6 +1,20 @@
+import requests
 from datetime import datetime
 from database import TradeState, Instrument
 from telegram_bot import send_telegram_message
+
+def trigger_quantman(url, signal_type, symbol):
+    if not url:
+        return
+    try:
+        # Quantman expects a GET request to the webhook URL
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            print(f"Quantman Webhook Triggered for {symbol} ({signal_type})")
+        else:
+            print(f"Quantman Webhook Failed: {response.status_code} - {response.text}")
+    except Exception as e:
+        print(f"Quantman Webhook Error: {e}")
 
 def process_signal(payload, db):
     """
@@ -65,7 +79,13 @@ def process_signal(payload, db):
             
             # Send Notification with Entry Details
             msg = f"🔴 <b>TRADE CLOSED</b>\nSymbol: {symbol}\nAction: Closed {old_status}\nPrice: {price}\nCandle Time: {candle_timestamp}\n\n🔍 <b>Entry Details:</b>\nEntry Time: {entry_time_str}\nEntry Price: {entry_price}"
+            msg = f"🔴 <b>TRADE CLOSED</b>\nSymbol: {symbol}\nAction: Closed {old_status}\nPrice: {price}\nCandle Time: {candle_timestamp}\n\n🔍 <b>Entry Details:</b>\nEntry Time: {entry_time_str}\nEntry Price: {entry_price}"
             send_telegram_message(msg)
+            
+            # TRIGGER QUANTMAN CLOSE
+            if instrument.quantman_close_url:
+                trigger_quantman(instrument.quantman_close_url, "EXIT", symbol)
+
             return {"status": "success", "message": "Trade Closed"}
         else:
              return {"status": "ignored", "message": "No open trade to close."}
@@ -104,7 +124,14 @@ def process_signal(payload, db):
         
         color_emoji = "🟢" if new_status == "LONG" else "🔴"
         msg = f"{color_emoji} <b>NEW TRADE ENTRY</b>\nSymbol: {symbol}\nDirection: {new_status}\nPrice: {price}\nCandle Time: {candle_timestamp}\nTime: {timestamp_str}"
+        msg = f"{color_emoji} <b>NEW TRADE ENTRY</b>\nSymbol: {symbol}\nDirection: {new_status}\nPrice: {price}\nCandle Time: {candle_timestamp}\nTime: {timestamp_str}"
         send_telegram_message(msg)
+        
+        # TRIGGER QUANTMAN ENTRY
+        if new_status == "LONG" and instrument.quantman_buy_url:
+            trigger_quantman(instrument.quantman_buy_url, "ENTRY_LONG", symbol)
+        elif new_status == "SHORT" and instrument.quantman_sell_url:
+            trigger_quantman(instrument.quantman_sell_url, "ENTRY_SHORT", symbol)
         
         return {"status": "success", "message": f"Entered {new_status}"}
 

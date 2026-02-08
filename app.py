@@ -54,6 +54,18 @@ def delete_instrument(id):
     db.close()
     return redirect(url_for('dashboard'))
 
+@app.route('/edit_instrument/<int:id>', methods=['POST'])
+def edit_instrument(id):
+    db = get_db_session()
+    inst = db.query(Instrument).filter(Instrument.id == id).first()
+    if inst:
+        inst.quantman_buy_url = request.form.get('quantman_buy_url')
+        inst.quantman_sell_url = request.form.get('quantman_sell_url')
+        inst.quantman_close_url = request.form.get('quantman_close_url')
+        db.commit()
+    db.close()
+    return redirect(url_for('dashboard'))
+
 @app.route('/webhook', methods=['POST'])
 def webhook():
     payload = request.json

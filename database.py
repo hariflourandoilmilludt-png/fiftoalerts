@@ -17,6 +17,9 @@ class Instrument(Base):
     symbol = Column(String, unique=True, index=True)
     timeframe = Column(String)
     active = Column(Boolean, default=True)
+    quantman_buy_url = Column(String, nullable=True)
+    quantman_sell_url = Column(String, nullable=True)
+    quantman_close_url = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class TradeState(Base):
